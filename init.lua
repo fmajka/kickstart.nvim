@@ -84,6 +84,10 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -164,7 +168,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<leader>m', vim.diagnostic.open_float, { desc = 'Show diagnostic error [M]essages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -226,7 +230,7 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -347,12 +351,18 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
+        defaults = {
+			file_ignore_patterns = {".git\\", ".cache", "%.o", "%.a", "%.out", "%.class","%.pdf", "%.mkv", "%.mp4", "%.zip"},
         --   mappings = {
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
-        -- },
-        -- pickers = {}
+        },
+        pickers = {
+			find_files = {
+				hidden = true,
+				
+			}
+		},
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -369,6 +379,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+	  vim.keymap.set('n', '<C-p>', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -538,9 +549,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -562,6 +573,12 @@ require('lazy').setup({
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
               -- diagnostics = { disable = { 'missing-fields' } },
+				runtime = { version="luaJIT" },
+				workspace = {
+					checkThirdParty = false, 
+					telemetry = { enable = false }, 
+					library = {"${3rd}/love2d/library"}
+				}
             },
           },
         },
@@ -683,7 +700,7 @@ require('lazy').setup({
             luasnip.lsp_expand(args.body)
           end,
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
+        --completion = { completeopt = 'menu,menuone,noinsert' },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
@@ -691,23 +708,72 @@ require('lazy').setup({
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
+          --['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          --['<C-p>'] = cmp.mapping.select_prev_item(),
+		  
+		  --[[ Test 
+		  
+		['<CR>'] = cmp.mapping.confirm({
+			behavior = cmp.ConfirmBehavior.Replace,
+			select = false,
+		}),
+		]]
+		
 
-          -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+		
 
+		["<Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_next_item()
+			elseif luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
+			else
+				fallback()
+			end
+		end, {"i", "s"}),
+
+		["<S-Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_prev_item()
+			elseif luasnip.jumpable(-1) then
+				luasnip.jump(-1)
+			else
+				fallback()
+			end
+		end, {"i", "s"}),
+		
+		['<C-e>'] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				if cmp.get_selected_entry() == nil then
+					cmp.select_next_item()
+				end
+				cmp.confirm({
+					behavior = cmp.ConfirmBehavior.Replace,
+					select = false,
+				})
+			else
+				fallback()
+			end
+		end, {"i", "s"}),
+		  -- [[ End Test ]]
+
+          -- Scroll the documentation window [u]p / [d]own!
+		  ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-d>'] = cmp.mapping.scroll_docs(4),
+		  
+		  ['<C-q>'] = cmp.mapping.close(),
+          
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          --['<C-y>'] = cmp.mapping.confirm { select = true },
+          --['<tab>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
-          ['<C-Space>'] = cmp.mapping.complete {},
+          -- ['<C-Space>'] = cmp.mapping.complete {},
 
           -- Think of <c-l> as moving to the right of your snippet expansion.
           --  So if you have a snippet that's like:
@@ -848,6 +914,39 @@ require('lazy').setup({
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
+  {
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    config = true
+    -- use opts = {} for passing setup options
+    -- this is equalent to setup({}) function
+  },
+  {
+    "nvim-tree/nvim-tree.lua",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("nvim-tree").setup {}
+      vim.keymap.set('n', '<leader>e', ":NvimTreeToggle<cr>", { desc="Open file [E]xplorer", noremap=true, silent=true })
+    end,
+  },
+  {
+    'akinsho/toggleterm.nvim', 
+    version = "*", 
+    config = {
+      size = 10,
+      open_mapping = [[<c-\>]],
+      hide_numbers = true,
+      start_in_insert = true,
+      persist_size = true,
+      direction = "horizontal",
+      close_on_exit = true,
+      shell = "sh",
+    }
+  },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -872,3 +971,49 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+--[[ These are mine! ]]
+
+vim.cmd([[
+set ts=4 
+set sw=4
+inoremap <M-j> <Esc>o
+inoremap <M-k> <Esc><S-o>
+tnoremap <Esc> <C-\><C-n>
+nnoremap <leader>g :let @*=expand('%:p:h')<cr>
+nnoremap <leader>l :wa<cr>:TermExec cmd="love ."<cr>
+set shell=cmd.exe
+set shellcmdflag=/s\ /c
+set switchbuf=useopen
+]])
+--tnoremap <Esc> <C-\><C-n>
+
+--[[
+vim.cmd([[
+let s:termnr = -1
+fu! TermToggle()
+  if bufexists(s:termnr)
+	if bufnr("%") == s:termnr
+      exec "wincmd p"
+	else
+      exec "sb " .. s:termnr
+      exec "normal! i"
+	endif
+  else
+    exec "bel 8sp term://bash"
+    let s:termnr = bufnr("%")
+	exec "normal! i"
+  endif
+endf
+
+fu! TermStart()
+  if !(bufexists(s:termnr)) || bufnr("%") != s:termnr
+	call TermToggle()
+  endif
+  exec "startinsert"
+endf
+
+nmap <C-t> :call TermToggle()<cr>
+tmap <C-t> <Esc>:call TermToggle()<cr>
+nmap <C-b> :wa<cr>:call TermStart()<cr>love .<cr><Esc><C-w>p
+]]--)

@@ -95,7 +95,8 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- oil.nvim keybind
-vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+-- vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set('n', '-', '<CMD>Ntree<CR>', { desc = 'Open parent directory' })
 
 -- Set to true if you have a Nerd Font installed
 vim.g.have_nerd_font = false
@@ -231,7 +232,7 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
-require("lazy").setup({ import = "custom/plugins" }, {
+require('lazy').setup({ import = 'custom/plugins' }, {
   change_detection = {
     notify = false,
   },
@@ -256,68 +257,52 @@ require("lazy").setup({ import = "custom/plugins" }, {
   },
 })
 -- require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  -- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+-- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  -- NOTE: Plugins can also be added by using a table,
-  -- with the first argument being the link and the following
-  -- keys can be used to configure plugin behavior/loading/etc.
-  --
-  -- Use `opts = {}` to force a plugin to be loaded.
-  --
-  --  This is equivalent to:
-  --    require('Comment').setup({})
+-- NOTE: Plugins can also be added by using a table,
+-- with the first argument being the link and the following
+-- keys can be used to configure plugin behavior/loading/etc.
+--
+-- Use `opts = {}` to force a plugin to be loaded.
+--
+--  This is equivalent to:
+--    require('Comment').setup({})
 
-  -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
-  -- init.lua. If you want these files, they are in the repository, so you can just download them and
-  -- place them in the correct locations.
+-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
+-- init.lua. If you want these files, they are in the repository, so you can just download them and
+-- place them in the correct locations.
 
-  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-  --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+-- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
+--
+--  Here are some example plugins that I've included in the Kickstart repository.
+--  Uncomment any of the lines below to enable them (you will need to restart nvim).
+--
+-- require 'kickstart.plugins.debug',
+-- require 'kickstart.plugins.indent_line',
+-- require 'kickstart.plugins.lint',
 
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    This is the easiest way to modularize your config.
-  --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+-- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+--    This is the easiest way to modularize your config.
+--
+--  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+--    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
+-- { import = 'custom.plugins' },
 
-  -- Disabled after switching to oil.nvim
-  -- {
-  --   "nvim-tree/nvim-tree.lua",
-  --   version = "*",
-  --   lazy = false,
-  --   dependencies = {
-  --     "nvim-tree/nvim-web-devicons",
-  --   },
-  --   config = function()
-  --     require("nvim-tree").setup {}
-  --     vim.keymap.set('n', '<leader>e', ":NvimTreeToggle<cr>", { desc="Open file [E]xplorer", noremap=true, silent=true })
-  --   end,
-  -- },
+-- Disabled after switching to oil.nvim
+-- {
+--   "nvim-tree/nvim-tree.lua",
+--   version = "*",
+--   lazy = false,
+--   dependencies = {
+--     "nvim-tree/nvim-web-devicons",
+--   },
+--   config = function()
+--     require("nvim-tree").setup {}
+--     vim.keymap.set('n', '<leader>e', ":NvimTreeToggle<cr>", { desc="Open file [E]xplorer", noremap=true, silent=true })
+--   end,
+-- },
 -- })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
-
---[[ These are mine! ]]
-
-vim.cmd([[
-set ts=4 
-set sw=4
-inoremap <M-j> <Esc>o
-inoremap <M-k> <Esc><S-o>
-tnoremap <Esc> <C-\><C-n>
-nnoremap <leader>g :let @*=expand('%:p:h')<cr>
-nnoremap <leader>l :wa<cr>:TermExec cmd="love ."<cr>
-set shell=cmd.exe
-set shellcmdflag=/s\ /c
-set switchbuf=useopen
-]])
---tnoremap <Esc> <C-\><C-n>
